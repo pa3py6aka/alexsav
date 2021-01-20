@@ -99,10 +99,10 @@
                     return 'Please enter your nickname.'
                 }
                 if (!this.$v.username.minLength) {
-                    return 'Nickname must have at least ' + this.$v.nickname.$params.minLength.min + ' letters.';
+                    return 'Nickname must have at least ' + this.$v.username.$params.minLength.min + ' letters.';
                 }
                 if (!this.$v.username.maxLength) {
-                    return 'Nickname should be not bigger then ' + this.$v.nickname.$params.maxLength.max + ' letters.';
+                    return 'Nickname should be not bigger then ' + this.$v.username.$params.maxLength.max + ' letters.';
                 }
                 if (!this.$v.username.matchPattern) {
                     return 'Nickname must contains only alphabet/numeric characters and "-" symbol.';
