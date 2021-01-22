@@ -182,8 +182,7 @@
                     };
                     this.$store.dispatch(AUTH_REQUEST, data)
                         .then(() => {
-                            console.log('All Done!!!');
-                            this.$router.push("/");
+                            this.$router.push("/").catch(()=>{});
                         })
                         .catch(() => {
                             let el = document.getElementsByClassName('is-invalid')[0];
