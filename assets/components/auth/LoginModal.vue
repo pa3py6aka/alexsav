@@ -101,7 +101,6 @@
                     };
                     this.$store.dispatch(AUTH_REQUEST, data)
                         .then(() => {
-                            console.log('success login.');
                             this.$bvModal.hide('login-modal');
                             Vue.$toast.success('You are logged in.');
                         })

@@ -79,6 +79,7 @@
 <script>
     import { required, minLength, maxLength, email, sameAs } from 'vuelidate/lib/validators';
     import {AUTH_REQUEST} from "../../store/actions/auth";
+    import Vue from "vue";
 
     export default {
         name: "sign-up-modal",
@@ -182,7 +183,8 @@
                     };
                     this.$store.dispatch(AUTH_REQUEST, data)
                         .then(() => {
-                            this.$router.push("/").catch(()=>{});
+                            this.$router.push("/profile").catch(()=>{});
+                            Vue.$toast.info('Signup request accepted.');
                         })
                         .catch(() => {
                             let el = document.getElementsByClassName('is-invalid')[0];

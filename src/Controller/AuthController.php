@@ -8,21 +8,19 @@ use App\Form\SignUpFormType;
 use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Security\Http\Event\LogoutEvent;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use App\Security\LoginFormAuthenticator;
 
 class AuthController extends BaseController
 {
-    private $emailVerifier;
+    private EmailVerifier $emailVerifier;
 
     public function __construct(EmailVerifier $emailVerifier, EntityManagerInterface $entityManager)
     {
@@ -33,30 +31,25 @@ class AuthController extends BaseController
     /**
      * @Route("/login", name="app_login", methods="POST")
      */
-    public function login(AuthenticationUtils $authenticationUtils)//: Response
-    {
-        /*
-        $user = $this->getUser();
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
-        */
-    }
+    public function login(AuthenticationUtils $authenticationUtils): void
+    {}
 
     /**
      * @Route("/auth/signup", name="app_signup", methods="POST")
-     * @param Request $request
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @return Response
      */
-    public function signup(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
+    public function signup(
+        Request $request,
+        UserPasswordEncoderInterface $passwordEncoder,
+        GuardAuthenticatorHandler $authGuard,
+        LoginFormAuthenticator $loginFormAuthenticator
+    ): Response
     {
         $user = new User();
         $form = $this->createForm(SignUpFormType::class, $user);
         $form->handleRequest($request);
         $form->submit($request->request->all());
+
         if ($form->isValid()) {
-            //return $this->json(['result' => 'form valid!', 'post' => $request->request->all()]);
             $user->setPassword(
                 $passwordEncoder->encodePassword(
                     $user,
@@ -68,7 +61,6 @@ class AuthController extends BaseController
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
                     ->from(new Address('robot@alexsav.ru', 'Alexsav.ru Mail Robot'))
@@ -77,7 +69,7 @@ class AuthController extends BaseController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            return $this->json(['result' => true, 'user' => $user->getProfileData()]);
+            return $authGuard->authenticateUserAndHandleSuccess($user, $request, $loginFormAuthenticator, 'main');
         }
 
         return $this->json([
@@ -96,8 +88,6 @@ class AuthController extends BaseController
 
     /**
      * @Route("/verify/email", name="app_verify_email")
-     * @param Request $request
-     * @return Response
      */
     public function verifyUserEmail(Request $request): Response
     {

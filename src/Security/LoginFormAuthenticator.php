@@ -5,7 +5,6 @@ namespace App\Security;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -28,14 +27,13 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
 
     public const LOGIN_ROUTE = 'app_login';
 
-    private $entityManager;
-    private $urlGenerator;
-    private $csrfTokenManager;
-    private $passwordEncoder;
-    private $userProvider;
+    private EntityManagerInterface $entityManager;
+    private UrlGeneratorInterface $urlGenerator;
+    private CsrfTokenManagerInterface $csrfTokenManager;
+    private UserPasswordEncoderInterface $passwordEncoder;
+    private UserProviderInterface $userProvider;
 
-    /** @var User|null */
-    private $user;
+    private ?User $user;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -105,14 +103,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-            return new RedirectResponse($targetPath);
-        }
+        //if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+        //    return new RedirectResponse($targetPath);
+        //}
 
-        // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
         return new JsonResponse(['result' => true, 'user' => $this->getUser($this->getCredentials($request), $this->userProvider)->getProfileData()]);
-
-        //throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)

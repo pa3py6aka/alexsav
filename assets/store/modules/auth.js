@@ -5,7 +5,7 @@ import {
     AUTH_SUCCESS,
     AUTH_LOGOUT
 } from "../actions/auth";
-import {USER_REQUEST, USER_SUCCESS} from "../actions/user";
+import {USER_SUCCESS} from "../actions/user";
 import {CSRF_UPDATE_REQUEST} from "../actions/security";
 import qs from 'qs';
 import Vue from 'vue';
@@ -37,7 +37,6 @@ const actions = {
                     let data = response.data;
                     if (!data.result) {
                         let errors = data.errors && Object.keys(data.errors).length ? data.errors : null;
-                        console.log(errors);
                         commit(AUTH_ERROR, errors);
                         reject();
                         return;
@@ -46,12 +45,8 @@ const actions = {
                     //localStorage.setItem("user-token", response.token);
                     //axios.defaults.headers.common['Authorization'] = resp.token
                     commit(AUTH_SUCCESS, response);
-                    if (type === 'signup') {
-                        dispatch(USER_REQUEST);
-                    } else {
-                        commit(USER_SUCCESS, data.user);
-                    }
-                    resolve(data);
+                    commit(USER_SUCCESS, data.user);
+                    resolve();
                 })
                 .catch(err => {
                     commit(AUTH_ERROR, null);
