@@ -2,9 +2,6 @@
     <main role="main" class="inner cover">
         <h1 class="cover-heading">Hello!</h1>
         <p class="lead">This is my sandbox/work server. I'm testing here many new technologies.</p>
-        <p class="lead">
-            <a href="#" class="btn btn-lg btn-secondary">Go Inside...</a>
-        </p>
     </main>
 </template>
 
